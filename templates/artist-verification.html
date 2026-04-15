@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOURCE // Artist Verification</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:italic@0;1&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { sWhite: '#FAF9F6', sGreen: '#243D32', sBrown: '#3E2723', sTerra: '#C16E53' },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Instrument Serif', 'serif'] },
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(62, 39, 35, 0.05);
+        }
+        .step-number {
+            font-family: 'Instrument Serif', serif;
+        }
+    </style>
+</head>
+<body class="bg-sWhite text-sBrown font-sans min-h-screen">
+
+    <header class="p-6 md:px-12 flex justify-between items-center border-b border-sBrown/5">
+        <a href="/" class="text-xl font-serif text-sGreen font-bold tracking-tight italic">SOURCE_</a>
+        <a href="/dashboard" class="text-xs font-bold uppercase tracking-widest text-sBrown/40 hover:text-sGreen transition-all">Zurück zum Profil</a>
+    </header>
+
+    <main class="max-w-4xl mx-auto py-20 px-6">
+        
+        <div class="mb-16 text-center">
+            <span class="text-sTerra font-bold text-[10px] uppercase tracking-[0.4em] mb-4 block">Künstler-Programm</span>
+            <h1 class="text-5xl md:text-7xl font-serif italic text-sGreen leading-tight">Werde verifizierter <br>Schöpfer im Archiv.</h1>
+            <p class="text-sBrown/50 mt-6 max-w-xl mx-auto text-lg">Verifizierte Künstler erhalten Zugang zur Song-Maske, können Meilensteine setzen und exklusive Inhalte für ihre Community freischalten.</p>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-12 items-start">
+            
+            <div class="space-y-12">
+                <div class="flex gap-6">
+                    <span class="step-number text-4xl text-sTerra/30 italic">01</span>
+                    <div>
+                        <h3 class="font-bold text-sGreen uppercase text-xs tracking-wider mb-2">Identität</h3>
+                        <p class="text-sm text-sBrown/60 leading-relaxed">Verknüpfe dein Profil mit deinem Künstlernamen. Achte darauf, dass dieser exakt deinem Spotify-Profil entspricht.</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-6">
+                    <span class="step-number text-4xl text-sTerra/30 italic">02</span>
+                    <div>
+                        <h3 class="font-bold text-sGreen uppercase text-xs tracking-wider mb-2">Nachweis</h3>
+                        <p class="text-sm text-sBrown/60 leading-relaxed">Lade einen Screenshot deines "Spotify for Artists" Dashboards hoch. Dein Name und deine Streams müssen sichtbar sein.</p>
+                    </div>
+                </div>
+
+                <div class="flex gap-6">
+                    <span class="step-number text-4xl text-sTerra/30 italic">03</span>
+                    <div>
+                        <h3 class="font-bold text-sGreen uppercase text-xs tracking-wider mb-2">Prüfung</h3>
+                        <p class="text-sm text-sBrown/60 leading-relaxed">Unser Team prüft deine Anfrage innerhalb von 24 Stunden. Nach Erfolg wechselt dein Dashboard in den Künstler-Modus.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white p-8 md:p-10 rounded-[3rem] shadow-xl shadow-sGreen/5 border border-sGreen/5">
+                <form action="/verify-request" method="POST" enctype="multipart/form-data" class="space-y-6">
+                    
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-sTerra mb-2">Künstlername</label>
+                        <input type="text" name="artist_name" required placeholder="z.B. Luna Shadow" 
+                            class="w-full p-4 rounded-2xl bg-sGreen/5 border-none focus:ring-2 focus:ring-sGreen outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-sTerra mb-2">Spotify Profil Link</label>
+                        <input type="url" name="spotify_link" required placeholder="http://googleusercontent.com/open.spotify.com/artist/..." 
+                            class="w-full p-4 rounded-2xl bg-sGreen/5 border-none focus:ring-2 focus:ring-sGreen outline-none transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-widest text-sTerra mb-2">Verifizierungs-Dokument</label>
+                        <div class="relative group">
+                            <input type="file" name="proof" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                            <div class="w-full p-8 border-2 border-dashed border-sGreen/10 rounded-2xl text-center group-hover:border-sGreen/30 transition-all bg-sGreen/[0.02]">
+                                <svg class="w-8 h-8 mx-auto text-sGreen/20 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 4v16m8-8H4" stroke-width="2" stroke-linecap="round"/></svg>
+                                <span class="text-xs text-sBrown/40 font-medium">Screenshot hochladen (PNG, JPG)</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full py-5 bg-sGreen text-sWhite rounded-full font-bold text-sm shadow-lg hover:bg-sBrown hover:-translate-y-1 transition-all duration-300 uppercase tracking-widest">
+                        Anfrage absenden
+                    </button>
+
+                    <p class="text-[10px] text-center text-sBrown/30 italic">Mit dem Absenden akzeptierst du unsere Künstler-Richtlinien.</p>
+                </form>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="p-12 text-center text-[10px] text-sBrown/20 uppercase tracking-[0.4em]">
+        Source Artist Program &copy; 2026
+    </footer>
+
+</body>
+</html>

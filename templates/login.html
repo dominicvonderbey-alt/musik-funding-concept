@@ -1,0 +1,103 @@
+header <!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOURCE // Zugang zum Archiv</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:italic@0;1&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { sWhite: '#FAF9F6', sGreen: '#243D32', sBrown: '#3E2723', sTerra: '#C16E53' },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Instrument Serif', 'serif'] },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-sWhite text-sBrown font-sans flex flex-col min-h-screen">
+
+    <header class="p-8 border-b border-sBrown/5 flex justify-between items-center">
+        <a href="/" class="text-2xl font-serif text-sGreen">SOURCE_</a> 
+    
+        <a href="/" class="text-sm font-medium hover:text-sTerra transition-colors">Abbrechen</a>
+    </header>
+
+    <main class="flex-grow flex items-center justify-center p-6">
+        <div class="bg-white p-10 md:p-14 rounded-[40px] shadow-2xl border border-sBrown/5 w-full max-w-md transition-all duration-500">
+            
+            <div id="auth-content">
+                <div class="text-center mb-10">
+                    <h2 id="auth-title" class="text-4xl font-serif italic text-sGreen mb-3 tracking-tight">Willkommen zurück.</h2>
+                    <p id="auth-subtitle" class="text-sm text-sBrown/50 font-light italic">Tritt ein in deinen digitalen Innenhof.</p>
+                </div>
+
+                <form action="/auth" method="POST" class="space-y-4">
+                     <div id="name-field" class="hidden">
+                        <label class="block text-[10px] font-bold uppercase tracking-widest mb-2 text-sGreen/60 ml-2">Dein Name</label>
+                        <input name="username" type="text" placeholder="Wie sollen wir dich nennen?" 
+                             class="w-full px-6 py-4 bg-sWhite border border-sBrown/10 rounded-2xl focus:outline-none focus:ring-1 focus:ring-sTerra transition-all">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-widest mb-2 text-sGreen/60 ml-2">Email Adresse</label>
+                        <input name="email" id="email" type="email" required placeholder="name@beispiel.de" 
+                            class="w-full px-6 py-4 bg-sWhite border border-sBrown/10 rounded-2xl focus:outline-none focus:ring-1 focus:ring-sTerra transition-all">
+                    </div>
+    
+                    <div>
+                        <label class="block text-[10px] font-bold uppercase tracking-widest mb-2 text-sGreen/60 ml-2">Passwort</label>
+                        <input name="password" type="password" required placeholder="••••••••" 
+                            class="w-full px-6 py-4 bg-sWhite border border-sBrown/10 rounded-2xl focus:outline-none focus:ring-1 focus:ring-sTerra transition-all">
+                    </div>
+
+                    <button id="auth-button" type="submit" class="w-full bg-sGreen text-sWhite py-5 rounded-full font-bold shadow-lg hover:bg-sBrown transition-all mt-6">
+                        Einloggen
+                    </button>
+                </form>
+
+                <div class="mt-10 text-center">
+                    <p id="auth-switch-text" class="text-sm text-sBrown/60">
+                        Noch kein Teil der Community? 
+                        <button onclick="toggleAuthMode()" class="text-sTerra font-bold hover:underline ml-1">Registrieren</button>
+                    </p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        let isLoginMode = true;
+
+        function toggleAuthMode() {
+            isLoginMode = !isLoginMode;
+
+            const title = document.getElementById('auth-title');
+            const subtitle = document.getElementById('auth-subtitle');
+            const nameField = document.getElementById('name-field');
+            const button = document.getElementById('auth-button');
+            const switchText = document.getElementById('auth-switch-text');
+
+            if (!isLoginMode) {
+                // Wechsel zu SIGN UP
+                title.innerText = "Teil von SOURCE werden.";
+                subtitle.innerText = "Erstelle dein Profil und unterstütze Künstler direkt.";
+                nameField.classList.remove('hidden');
+                button.innerText = "Account erstellen";
+                switchText.innerHTML = 'Bereits dabei? <button onclick="toggleAuthMode()" class="text-sTerra font-bold hover:underline ml-1">Einloggen</button>';
+            } else {
+                // Wechsel zu LOGIN
+                title.innerText = "Willkommen zurück.";
+                subtitle.innerText = "Tritt ein in deinen digitalen Innenhof.";
+                nameField.classList.add('hidden');
+                button.innerText = "Einloggen";
+                switchText.innerHTML = 'Noch kein Teil der Community? <button onclick="toggleAuthMode()" class="text-sTerra font-bold hover:underline ml-1">Registrieren</button>';
+            }
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ song.title }} // SOURCE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { sWhite: '#FAF9F6', sGreen: '#243D32', sBrown: '#3E2723', sTerra: '#C16E53' },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Instrument Serif', 'serif'] },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-sWhite text-sBrown min-h-screen flex flex-col items-center p-6 md:p-12">
+
+    {% if user and user.id == song.user_id %}
+        <div class="absolute top-6 right-6 md:top-12 md:right-12 z-50">
+            <a href="/edit-song/{{ song.id }}" 
+            class="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-sBrown/10 bg-white/50 backdrop-blur-sm text-sBrown/60 hover:text-sTerra hover:border-sTerra/30 hover:bg-white transition-all shadow-sm group">
+                <svg class="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span class="text-[9px] font-bold uppercase tracking-[0.2em]">Bearbeiten</span>
+            </a>
+        </div>
+    {% endif %}    
+
+    <div class="max-w-2xl w-full text-center">
+        <a href="/" class="text-[10px] font-bold uppercase tracking-[0.3em] opacity-40 hover:opacity-100 mb-12 block">← Zurück zum Archiv</a>
+
+        <div class="mb-12">
+            <div class="w-64 h-64 mx-auto rounded-[3rem] overflow-hidden shadow-2xl mb-8 border border-sBrown/5">
+                <img src="/{{ song.cover_path }}" class="w-full h-full object-cover" alt="Cover">
+            </div>
+            <h1 class="text-4xl font-serif italic text-sGreen mb-2">{{ song.title }}</h1>
+            <p class="text-sTerra font-bold uppercase tracking-widest text-xs mb-6">{{ song.artist }}</p>
+
+            <a href="{{ song.spotify_url }}" target="_blank" 
+            class="inline-flex items-center gap-3 px-6 py-3 bg-[#1DB954] text-white rounded-full hover:scale-105 transition-all shadow-lg shadow-green-900/20">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.5 17.3c-.2.3-.5.4-.8.2-2.5-1.5-5.6-1.9-9.3-1-.3.1-.6-.1-.7-.4s.1-.6.4-.7c4.1-1 7.6-.5 10.4 1.2.2.1.3.4.1.7zm1.5-3.3c-.3.4-.8.5-1.2.2-2.8-1.7-7.1-2.2-10.5-1.2-.4.1-.9-.1-1-.6s.1-.9.6-1c3.8-1.2 8.6-.6 11.8 1.4.5.3.6.8.3 1.2zm.1-3.4C15.5 8.3 9.4 8.1 5.8 9.2c-.5.2-1.1-.1-1.3-.6-.1-.6.1-1.1.7-1.3 4.2-1.3 10.9-1.1 15 1.4.5.3.6.9.3 1.4s-.9.6-1.4.3z"/>
+                </svg>
+                <span class="text-[10px] font-bold uppercase tracking-widest">Auf Spotify streamen</span>
+            </a>
+        </div>
+
+        <div class="bg-white p-8 rounded-[40px] shadow-sm border border-sBrown/5 mb-12">
+            <div class="flex justify-between items-end mb-4 text-[10px] font-bold uppercase tracking-widest">
+                <span class="text-sBrown/40">{{ song.current_streams }} Streams</span>
+                <span class="text-sTerra">Ziel: {{ song.goal_streams }}</span>
+            </div>
+            <div class="w-full h-2 bg-sGreen/5 rounded-full overflow-hidden">
+                <div class="h-full bg-sTerra transition-all duration-1000" style="width: {{ progress }}%"></div>
+            </div>
+            <p class="mt-4 text-xs italic text-sBrown/60">
+                {% if is_unlocked %}
+                    Das Siegel ist gebrochen. Viel Freude mit dem Werk.
+                {% else %}
+                    Noch {{ song.goal_streams - song.current_streams }} Streams bis zur Entsiegelung.
+                {% endif %}
+            </p>
+        </div>
+
+        <div class="relative group">
+            <h3 class="text-xs font-bold uppercase tracking-[0.4em] mb-6 text-sGreen/40">Exklusiver Inhalt</h3>
+            
+            <div class="relative overflow-hidden rounded-[3rem] aspect-video bg-sGreen/5 flex items-center justify-center border border-sBrown/5">
+                
+                {% if is_unlocked %}
+                    <video controls class="w-full h-full object-cover">
+                        <source src="/{{ song.reward_path }}" type="video/mp4">
+                        Dein Browser unterstützt dieses Video nicht.
+                    </video>
+                {% else %}
+                    <div class="absolute inset-0 bg-sGreen/10 backdrop-blur-xl z-10 flex flex-col items-center justify-center text-sGreen">
+                        <svg class="w-12 h-12 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                        </svg>
+                        <span class="text-[10px] font-bold uppercase tracking-[0.3em]">Versiegelt</span>
+                    </div>
+                    <div class="w-full h-full bg-gradient-to-br from-sTerra/20 to-sGreen/20"></div>
+                {% endif %}
+
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

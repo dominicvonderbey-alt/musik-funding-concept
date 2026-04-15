@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit: {{ song.title }} // SOURCE</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { sWhite: '#FAF9F6', sGreen: '#243D32', sBrown: '#3E2723', sTerra: '#C16E53' },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Instrument Serif', 'serif'] },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-sWhite text-sBrown min-h-screen flex items-center justify-center p-6">
+
+    <div class="max-w-xl w-full bg-white p-8 md:p-12 rounded-[3rem] shadow-sm border border-sBrown/5">
+        <div class="text-center mb-10">
+            <span class="text-[10px] font-bold uppercase tracking-[0.4em] text-sTerra mb-2 block">Management</span>
+            <h2 class="text-4xl font-serif italic text-sGreen leading-tight">Werk bearbeiten</h2>
+        </div>
+        
+        <form action="/edit-song/{{ song.id }}" method="post" class="space-y-6">
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[9px] font-bold uppercase tracking-widest mb-2 text-sBrown/40">Titel</label>
+                    <input type="text" name="title" value="{{ song.title }}" required
+                        class="w-full bg-sGreen/5 border-none rounded-2xl py-4 px-6 text-sm focus:ring-2 focus:ring-sTerra/20 outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-bold uppercase tracking-widest mb-2 text-sBrown/40">Künstler</label>
+                    <input type="text" name="artist" value="{{ song.artist }}" required
+                        class="w-full bg-sGreen/5 border-none rounded-2xl py-4 px-6 text-sm focus:ring-2 focus:ring-sTerra/20 outline-none transition-all">
+                </div>
+            </div>
+
+            <div>
+                <label class="block text-[9px] font-bold uppercase tracking-widest mb-2 text-sBrown/40">Genre / Kategorie</label>
+                <div class="relative">
+                    <select name="genre" class="w-full bg-sGreen/5 border-none rounded-2xl py-4 px-6 text-sm focus:ring-2 focus:ring-sTerra/20 outline-none transition-all appearance-none cursor-pointer">
+                        {% for g in ["HipHop", "Rap", "Schlager", "Pop", "Rock", "Techno", "Indie"] %}
+                            <option value="{{ g }}" {% if song.genre == g %}selected{% endif %}>{{ g }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-[9px] font-bold uppercase tracking-widest mb-2 text-sBrown/40">Stream-Ziel</label>
+                    <input type="number" name="goal_streams" value="{{ song.goal_streams }}" required
+                        class="w-full bg-sGreen/5 border-none rounded-2xl py-4 px-6 text-sm focus:ring-2 focus:ring-sTerra/20 outline-none transition-all">
+                </div>
+                <div>
+                    <label class="block text-[9px] font-bold uppercase tracking-widest mb-2 text-sBrown/40">Aktuell</label>
+                    <div class="w-full bg-sBrown/5 border-none rounded-2xl py-4 px-6 text-sm text-sBrown/30">
+                        {{ song.current_streams }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div>
+            <label class="block text-[9px] font-bold uppercase tracking-widest mb-2 text-sBrown/40">Spotify URL</label>
+            <input type="url" name="spotify_url" value="{{ song.spotify_url }}" required
+                class="w-full bg-sGreen/5 border-none rounded-2xl py-4 px-6 text-sm focus:ring-2 focus:ring-sTerra/20 outline-none transition-all">
+        </div>
+        <div>
+            <label class="block text-[9px] font-bold uppercase tracking-widest mb-2 text-sBrown/40">ISRC Code</label>
+            <input type="text" name="isrc" value="{{ song.isrc or '' }}" placeholder="DE-A12..."
+                class="w-full bg-sGreen/5 border-none rounded-2xl py-4 px-6 text-sm focus:ring-2 focus:ring-sTerra/20 outline-none transition-all">
+        </div>
+    <div class="border-t border-sGreen/5 pt-8 mt-8">
+        <label class="block text-[10px] font-bold uppercase tracking-widest text-sTerra mb-4">Mitwirkende Künstler (Features)</label>
+        
+        <div class="flex flex-wrap gap-2 mb-6">
+            <div class="bg-sGreen/10 px-4 py-2 rounded-full flex items-center gap-2">
+                <span class="text-[10px] font-bold text-sGreen">{{ user.username }} (Host)</span>
+            </div>
+            {% for collab in song.collaborators %}
+            <div class="bg-sTerra/10 px-4 py-2 rounded-full flex items-center gap-2 border border-sTerra/20">
+                <span class="text-[10px] font-bold text-sTerra">{{ collab.username }}</span>
+                <button class="text-sTerra hover:text-sBrown text-xs">×</button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="relative">
+            <input type="text" id="artist-search" name="artist_name" placeholder="Künstlernamen eingeben..." 
+                class="w-full p-4 rounded-2xl bg-sGreen/[0.03] border-none focus:ring-2 focus:ring-sGreen/20 outline-none transition-all text-sm">
+            <button type="button" onclick="submitInvite()" 
+                class="absolute right-2 top-2 bottom-2 px-6 bg-sGreen text-white rounded-xl text-[9px] font-bold uppercase tracking-widest hover:bg-sBrown transition-all">
+                Einladen
+            </button>
+        </div>
+        <p class="text-[9px] text-sBrown/30 mt-2 ml-1 italic">Nur verifizierte SOURCE-Künstler können an Projekten mitwirken.</p>
+    </div>
+
+    <script>
+    function submitInvite() {
+        const artistName = document.getElementById('artist-search').value;
+        if(!artistName) return;
+        
+        // Wir nutzen ein kleines Form-Objekt um die Daten zu senden
+        const formData = new FormData();
+        formData.append('artist_name', artistName);
+        
+        fetch(`/invite-collaborator/{{ song.id }}`, {
+            method: 'POST',
+            body: formData
+        }).then(() => window.location.reload());
+    }
+    </script>
+    </div>
+
+            <div class="flex gap-3 pt-6">
+                <a href="/song/{{ song.id }}" class="flex-1 py-4 text-center border border-sBrown/10 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-sBrown/5 transition-all">Abbrechen</a>
+                <button type="submit" class="flex-1 py-4 bg-sGreen text-sWhite rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-sTerra transition-all shadow-lg shadow-sGreen/10">Speichern</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOURCE // Archiv & Inspiration</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:italic@0;1&family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@700;800;900&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { sWhite: '#FAF9F6', sGreen: '#243D32', sBrown: '#3E2723', sTerra: '#C16E53' },
+                    fontFamily: { 
+                        sans: ['Inter', 'sans-serif'], 
+                        serif: ['Instrument Serif', 'serif'],
+                        display: ['Montserrat', 'sans-serif']
+                    },
+                }
+            }
+        }
+    </script>
+    <style>
+        .source-frontpage-bg {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-image: url('/static/frontpage_bg.png'); 
+            background-size: cover;
+            background-position: center;
+            z-index: -2;
+        }
+
+        .source-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background-color: rgba(250, 249, 246, 0.5); 
+            z-index: -1;
+        }
+
+        .font-montserrat {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: -0.02em;
+        }
+
+        .dropdown-menu { display: none; opacity: 0; transform: translateY(10px); transition: all 0.2s ease; }
+        .group:hover .dropdown-menu { display: block; opacity: 1; transform: translateY(0); }
+        
+        .tab-active { color: #243D32 !important; border-bottom: 2px solid #243D32; }
+        .hidden-view { display: none; }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+        .artist-card { width: 220px; flex-shrink: 0; }
+        @media (min-width: 768px) { .artist-card { width: 280px; } }
+
+        .card-inner { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+        .artist-card:hover .card-inner { transform: scale(1.03); }
+
+        .cover-placeholder {
+            width: 100%; aspect-ratio: 1 / 1;
+            background-color: #243D32; opacity: 0.08;
+            border-radius: 1.5rem; margin-bottom: 1rem;
+            transition: opacity 0.3s ease;
+        }
+
+        .slider-heading {
+            font-size: 0.7rem; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.2em; color: #C16E53; margin-bottom: 0.5rem; display: block;
+        }
+
+        .nav-arrow {
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 1px solid rgba(36, 61, 50, 0.1);
+            display: flex; align-items: center; justify-content: center;
+            color: #243D32; transition: all 0.2s ease;
+        }
+        .nav-arrow:hover { background-color: #243D32; color: #FAF9F6; border-color: #243D32; }
+    </style>
+</head>
+<body class="text-sBrown font-sans min-h-screen flex flex-col relative">
+
+<div class="source-frontpage-bg"></div>
+<div class="source-overlay"></div>
+
+<header class="p-6 md:px-12 flex justify-between items-center bg-sWhite/80 backdrop-blur-xl sticky top-0 z-50 border-b border-sBrown/5">
+    
+    <div class="flex items-center gap-4 flex-1">
+        <button onclick="toggleMenu('mobile-menu', true)" class="p-2 hover:bg-sGreen/5 rounded-full transition-all">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+        </button>
+        <a href="/" class="text-xl font-serif text-sGreen font-bold tracking-tight">SOURCE_</a>
+    </div>
+
+    <div class="hidden md:flex flex-1 justify-center max-w-xl">
+        <div class="relative w-full max-w-sm group">
+            <input type="text" id="navSearch" placeholder="Nach Werk suchen..." 
+                class="w-full bg-white/50 border-none rounded-full py-2.5 px-10 text-[11px] font-medium outline-none focus:ring-1 focus:ring-sTerra/30 transition-all placeholder:text-sBrown/30 backdrop-blur-sm">
+            <svg class="w-3.5 h-3.5 absolute left-4 top-1/2 -translate-y-1/2 text-sBrown/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div id="navResults" class="absolute w-full mt-3 bg-white/95 backdrop-blur-xl rounded-[2rem] shadow-2xl border border-sBrown/5 hidden overflow-hidden z-[100]"></div>
+        </div>
+    </div>
+
+    <div class="flex items-center justify-end flex-1 gap-2 md:gap-4">
+        
+        <div class="relative inline-block text-left" id="notification-center">
+            <button onclick="toggleNotifications()" class="relative p-2 text-sGreen hover:bg-sGreen/5 rounded-full transition-all">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-6 h-6">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M14.857 17.082a23.848 23.848 0 005.454-1.31A8.967 8.967 0 0118 9.75v-.7V9A6 6 0 006 9v.75a8.967 8.967 0 01-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 01-5.714 0m5.714 0a3 3 0 11-5.714 0" />
+                </svg>
+                {% if notifications and notifications|length > 0 %}
+                <span class="absolute top-2 right-2 flex h-2 w-2">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sTerra opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-2 w-2 bg-sTerra"></span>
+                </span>
+                {% endif %}
+            </button>
+
+            <div id="notif-dropdown" class="hidden absolute right-0 mt-4 w-80 bg-white rounded-[2rem] shadow-2xl border border-sGreen/5 z-50 overflow-hidden">
+                <div class="p-6 border-b border-sGreen/5">
+                    <h3 class="font-serif italic text-sGreen text-lg">Postfach</h3>
+                </div>
+                <div class="max-h-96 overflow-y-auto">
+                    {% if not notifications %}
+                        <p class="p-8 text-[10px] text-center uppercase tracking-widest opacity-30">Keine neuen Anfragen</p>
+                    {% else %}
+                        {% for n in notifications %}
+                        <div class="p-6 hover:bg-sGreen/[0.02] border-b border-sGreen/5 last:border-0">
+                            <p class="text-[11px] leading-relaxed mb-4">{{ n.message }}</p>
+                            <div class="flex gap-2">
+                                <form action="/accept-collab/{{ n.id }}" method="POST" class="flex-1">
+                                    <button class="w-full py-2 bg-sGreen text-white text-[9px] font-bold uppercase rounded-full">Annehmen</button>
+                                </form>
+                                <form action="/decline-collab/{{ n.id }}" method="POST" class="flex-1">
+                                    <button class="w-full py-2 border border-sGreen/10 text-sGreen text-[9px] font-bold uppercase rounded-full">Ablehnen</button>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="flex items-center">
+            {% if user %}
+                <div class="relative group py-2"> 
+                    <button class="flex items-center gap-2 bg-white/50 backdrop-blur-sm px-5 py-2.5 rounded-full border border-sGreen/10 group-hover:bg-sGreen group-hover:text-sWhite transition-all">
+                        <span class="text-sm font-semibold tracking-tight">Mein Bereich</span>
+                        <svg class="w-4 h-4 opacity-30 group-hover:rotate-180 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path d="M19 9l-7 7-7-7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    </button>
+                    <div class="dropdown-menu absolute right-0 pt-3 w-60 z-[100]">
+                        <div class="bg-white/95 backdrop-blur-xl border border-sBrown/5 rounded-[2rem] shadow-2xl overflow-hidden p-2">
+                            <div class="px-5 py-4 border-b border-sBrown/5 mb-1 bg-sGreen/[0.02]">
+                                <p class="text-[11px] font-bold text-sGreen uppercase tracking-wider mb-1">{{ user.username }}</p>
+                                <p class="text-xs italic font-serif text-sTerra">{{ user.role | capitalize }}</p>
+                            </div>
+                            <a href="/dashboard" class="flex items-center gap-3 px-5 py-3 text-sm font-medium text-sBrown/80 hover:bg-sGreen/5 rounded-2xl transition-colors">Dashboard</a>
+                            <a href="/logout" class="flex items-center gap-3 px-5 py-3 text-sm font-bold text-red-400 hover:bg-red-50 rounded-2xl transition-colors mt-1">Abmelden</a>
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <a href="/login" class="px-6 py-2.5 bg-sGreen text-sWhite rounded-full text-sm font-bold shadow-md hover:bg-sBrown transition-all">Login</a>
+            {% endif %}
+        </div>
+    </div>
+</header>
+<div id="mobile-menu" class="fixed inset-0 bg-sGreen text-sWhite z-[100] hidden flex-col p-12 transition-all">
+    <button onclick="toggleMenu('mobile-menu', false)" class="self-end p-4 text-sWhite/50 hover:text-sWhite italic font-serif">Schließen —</button>
+    <nav class="mt-12 space-y-8">
+        <a href="/" class="block text-5xl font-serif italic hover:translate-x-4 transition-transform">Startseite</a>
+        <a href="/about" class="block text-5xl font-serif italic hover:translate-x-4 transition-transform">Über uns</a>
+    </nav>
+</div>
+
+<div class="flex justify-center border-b border-sBrown/5 bg-white/40 backdrop-blur-md sticky top-[73px] z-40">
+    <div class="flex gap-8 px-4">
+        <button id="btn-home" onclick="switchTab('home')" class="py-4 text-xs font-bold uppercase tracking-[0.2em] tab-active transition-all">Home</button>
+        <button id="btn-explore" onclick="switchTab('explore')" class="py-4 text-xs font-bold uppercase tracking-[0.2em] text-sBrown/40 hover:text-sGreen transition-all">Erkunden</button>
+    </div>
+</div>
+
+<main class="flex-grow relative z-10">
+    <div id="view-home">
+        <section class="py-24 px-6 md:px-12 max-w-5xl mx-auto border-b border-sBrown/5">
+            <span class="text-sTerra font-bold text-[10px] uppercase tracking-widest mb-4 block">Für die Betrachter</span>
+            <h2 class="text-5xl md:text-7xl font-montserrat italic text-sGreen mb-8 leading-tight">Ein digitaler Innenhof <br/>der Stille.</h2>
+            <p class="text-lg text-sBrown/70 max-w-2xl leading-relaxed">
+                Als Fan findest du bei SOURCE einen Ort ohne Algorithmen. Entdecke Künstler direkt, unterstütze ihre Arbeit und baue dein persönliches Archiv wertvoller Inspirationen auf.
+            </p>
+        </section>
+
+        <section class="py-24 px-6 md:px-12 max-w-5xl mx-auto bg-white/40 backdrop-blur-sm rounded-[4rem] my-12 border border-sBrown/5 shadow-sm">
+            <span class="text-sTerra font-bold text-[10px] uppercase tracking-widest mb-4 block text-right">Für die Schöpfer</span>
+            <h2 class="text-5xl md:text-7xl font-montserrat italic text-sGreen mb-8 leading-tight text-right">Dein Werk verdient <br/>echten Raum.</h2>
+            <p class="text-lg text-sBrown/70 max-w-2xl leading-relaxed ml-auto text-right">
+                Keine Likes, kein Lärm. Verwalte dein Atelier digital, teile deine Prozesse und verbinde dich tief mit Menschen, die deine Vision wirklich schätzen.
+            </p>
+        </section>
+    </div>
+
+    <div id="view-explore" class="hidden-view py-12 md:py-20 space-y-24">
+        <div class="px-6 md:px-12 mb-12">
+            <h2 class="text-4xl md:text-6xl font-montserrat italic text-sGreen uppercase">Entdecke neue Stimmen</h2>
+            <p class="text-[10px] text-sTerra uppercase tracking-[0.3em] mt-4 font-bold">Kuratierte Auswahl</p>
+        </div>
+
+        <div id="dynamic-sections">
+            {% for genre, songs in explore_data.items() %}
+                {% if songs %} 
+                    <section class="mb-20">
+                        <div class="px-6 md:px-12 flex justify-between items-end mb-8">
+                            <div>
+                                <span class="slider-heading">Archiv & Fokus</span>
+                                <h3 class="text-3xl font-serif italic text-sGreen">{{ genre }}</h3>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="scrollSlider('slider-{{ loop.index }}', -1)" class="nav-arrow bg-white/50 backdrop-blur-sm">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 19l-7-7 7-7"></path></svg>
+                                </button>
+                                <button onclick="scrollSlider('slider-{{ loop.index }}', 1)" class="nav-arrow bg-white/50 backdrop-blur-sm">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5l7 7-7 7"></path></svg>
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div id="slider-{{ loop.index }}" class="flex gap-6 overflow-x-auto px-6 md:px-12 no-scrollbar scroll-smooth snap-x pb-4">
+                            {% for song in songs %}
+                            <a href="/song/{{ song.id }}" class="artist-card snap-start block">
+                                <div class="card-inner">
+                                    {% if song.cover_path %}
+                                        <img src="/{{ song.cover_path }}" class="w-full aspect-square object-cover rounded-[1.5rem] mb-4 shadow-sm">
+                                    {% else %}
+                                        <div class="cover-placeholder shadow-sm"></div>
+                                    {% endif %}
+                                    <h3 class="font-bold text-sGreen text-lg truncate">{{ song.title }}</h3>
+                                    <p class="text-xs italic font-serif text-sTerra">{{ song.artist }}</p>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                        <hr class="mx-6 md:mx-12 mt-16 border-sBrown/5">
+                    </section>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+</main>
+
+<footer class="p-12 text-center text-[10px] text-sBrown/40 uppercase tracking-[0.4em] relative z-10">
+    Source Archiv &copy; 2026
+</footer>
+
+<script>
+    function toggleNotifications() {
+        const dropdown = document.getElementById('notif-dropdown');
+        dropdown.classList.toggle('hidden');
+    }
+    
+    window.onclick = function(event) {
+        if (!event.target.closest('#notification-center')) {
+            const dropdown = document.getElementById('notif-dropdown');
+            if (dropdown && !dropdown.classList.contains('hidden')) {
+                dropdown.classList.add('hidden');
+            }
+        }
+    }
+
+    function toggleMenu(id, show) {
+        const el = document.getElementById(id);
+        el.style.display = show ? 'flex' : 'none';
+    }
+
+    function switchTab(tab) {
+        const isHome = tab === 'home';
+        document.getElementById('view-home').classList.toggle('hidden-view', !isHome);
+        document.getElementById('view-explore').classList.toggle('hidden-view', isHome);
+        document.getElementById('btn-home').classList.toggle('tab-active', isHome);
+        document.getElementById('btn-home').classList.toggle('text-sBrown/40', !isHome);
+        document.getElementById('btn-explore').classList.toggle('tab-active', !isHome);
+        document.getElementById('btn-explore').classList.toggle('text-sBrown/40', isHome);
+        window.scrollTo(0,0);
+    }
+
+    function scrollSlider(id, direction) {
+        const slider = document.getElementById(id);
+        if(!slider) return;
+        const scrollAmount = slider.clientWidth * 0.8;
+        slider.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const navInput = document.getElementById('navSearch');
+        const navResults = document.getElementById('navResults');
+
+        if (navInput) {
+            navInput.addEventListener('input', async (e) => {
+                const query = e.target.value;
+                if (query.length < 2) {
+                    navResults.classList.add('hidden');
+                    return;
+                }
+
+                try {
+                    const response = await fetch(`/api/search?q=${query}`);
+                    const songs = await response.json();
+
+                    if (songs.length > 0) {
+                        navResults.innerHTML = songs.map(song => `
+                            <a href="/song/${song.id}" class="flex items-center gap-3 p-3 hover:bg-sGreen/5 transition-all border-b border-sBrown/5 last:border-none">
+                                <img src="/${song.cover_path}" class="w-10 h-10 rounded-xl object-cover shadow-sm">
+                                <div class="overflow-hidden">
+                                    <div class="text-[11px] font-bold text-sGreen truncate">${song.title}</div>
+                                    <div class="text-[8px] uppercase tracking-widest text-sBrown/40 truncate">${song.artist}</div>
+                                </div>
+                            </a>
+                        `).join('');
+                        navResults.classList.remove('hidden');
+                    } else {
+                        navResults.innerHTML = '<div class="p-4 text-[10px] text-center text-sBrown/40 uppercase tracking-widest">Nichts gefunden</div>';
+                        navResults.classList.remove('hidden');
+                    }
+                } catch (err) {
+                    console.error("Search error:", err);
+                }
+            });
+
+            document.addEventListener('click', (e) => {
+                if (!navInput.contains(e.target) && !navResults.contains(e.target)) {
+                    navResults.classList.add('hidden');
+                }
+            });
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Über SOURCE // Die Philosophie</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:italic@0;1&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { sWhite: '#FAF9F6', sGreen: '#243D32', sBrown: '#3E2723', sTerra: '#C16E53' },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Instrument Serif', 'serif'] },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-sWhite text-sBrown font-sans antialiased">
+
+    <header class="w-full px-8 py-6 flex justify-between items-center border-b border-sBrown/5">
+        <a href="/" class="text-3xl font-serif text-sGreen">SOURCE_</a>
+        <a href="/" class="text-sm font-medium hover:text-sTerra transition-colors flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M10 19l-7-7m0 0l7-7m-7 7h18" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+            Zurück zur Startseite
+        </a>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-6 py-24">
+        <span class="text-sTerra font-bold uppercase tracking-[0.3em] text-[10px]">Manifest v1.0</span>
+        <h1 class="text-6xl md:text-8xl font-serif text-sGreen leading-none mt-6 mb-12 italic">Die Tiefe hinter <br>dem Beat.</h1>
+        
+        <div class="space-y-10 text-xl text-sBrown/80 leading-relaxed font-light">
+            <p class="font-medium text-sBrown">
+                Wir sind nicht hier, um die Musikindustrie zu retten. Wir sind hier, um die Verbindung zwischen denen zu retten, die Musik erschaffen, und denen, die sie wirklich fühlen.
+            </p>
+            <p>
+                In einer Ära, in der ein Song nur noch 15 Sekunden Aufmerksamkeit auf TikTok bekommt, bevor er weggewischt wird, setzen wir auf **Verlangsamung**. SOURCE ist ein digitaler Ort der Wertschätzung. 
+            </p>
+            
+            <div class="grid md:grid-cols-2 gap-12 py-12">
+                <div class="space-y-4">
+                    <h3 class="font-serif text-3xl text-sGreen italic">Kein Lärm.</h3>
+                    <p class="text-sm">Keine blinkende Werbung, kein unnötiges Interface. Wir haben uns von der Ruhe eines aufgeräumten Zimmers inspirieren lassen – so wie das Design, das du gerade siehst.</p>
+                </div>
+                <div class="space-y-4">
+                    <h3 class="font-serif text-3xl text-sGreen italic">Keine Ausbeutung.</h3>
+                    <p class="text-sm">Wir verkaufen keine Nutzerdaten. Wir monetarisieren über echte Mehrwerte für Fans und faire Partnerschaften mit Künstlern.</p>
+                </div>
+            </div>
+
+            <blockquote class="border-l-4 border-sTerra pl-8 py-4 italic font-serif text-3xl text-sGreen">
+                "Kultur entsteht nicht im Algorithmus, sondern im Vertrauen zwischen Artist und Fan."
+            </blockquote>
+
+            <p>
+                SOURCE nutzt die Infrastruktur von Spotify, aber wir geben ihr ein Herz. Wir tracken deine Streams nicht für Statistiken, sondern um dir die Tür zu einer Welt zu öffnen, die normalerweise verschlossen bleibt.
+            </p>
+        </div>
+
+        <section class="mt-24 pt-12 border-t border-sBrown/10">
+            <h4 class="text-sm font-bold uppercase tracking-widest mb-8">Das Team</h4>
+            <div class="flex flex-wrap gap-4">
+                <div class="bg-white border border-sBrown/5 px-6 py-4 rounded-2xl flex items-center gap-4">
+                    <div class="w-10 h-10 rounded-full bg-sWood wood-texture"></div>
+                    <div>
+                        <p class="font-bold text-sm">Dein Name</p>
+                        <p class="text-[10px] opacity-50 uppercase">Founder & Design</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-12 bg-sGreen text-sWhite text-center text-[10px] font-bold uppercase tracking-[0.4em]">
+        SOURCE // Established 2026 // Berlin
+    </footer>
+
+</body>
+</html>

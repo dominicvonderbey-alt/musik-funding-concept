@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>SOURCE // Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { sWhite: '#FAF9F6', sGreen: '#243D32', sBrown: '#3E2723', sTerra: '#C16E53' },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Instrument Serif', 'serif'] },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-sWhite text-sBrown min-h-screen p-6 md:p-12">
+    
+    <header class="max-w-6xl mx-auto mb-12 flex justify-between items-end border-b border-sBrown/10 pb-8">
+        <div>
+            <a href="/" class="text-sm font-bold text-sTerra uppercase tracking-widest mb-4 block">← Zurück zum Hof</a>
+            <h1 class="text-5xl font-serif italic text-sGreen">Hallo, {{ user.username }}</h1>
+            <p class="text-sBrown/40 mt-2 italic">Status: 
+                {% if user.role == 'pending_artist' %} In Prüfung ⏳ {% else %} {{ user.role | capitalize }} {% endif %}
+            </p>
+        </div>
+        <a href="/logout" class="text-[10px] font-bold uppercase tracking-widest text-red-400 hover:text-red-600 transition-all pb-2">Abmelden —</a>
+    </header>
+
+    <main class="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <div class="md:col-span-1 space-y-6">
+            <div class="bg-white p-8 rounded-[40px] shadow-sm border border-sBrown/5">
+                <h2 class="font-bold text-xs uppercase tracking-widest mb-6 text-sGreen/60">Profil Details</h2>
+                <div class="space-y-4">
+                    <div>
+                        <span class="block text-[10px] text-sBrown/30 uppercase font-bold">Email</span>
+                        <span class="text-sm">{{ user.email }}</span>
+                    </div>
+
+                    {% if user.role == 'fan' %}
+                    <div class="pt-6 border-t border-sBrown/5">
+                        <h3 class="text-sm font-bold mb-2">Du bist Schöpfer?</h3>
+                        <p class="text-xs text-sBrown/50 mb-4 font-light leading-relaxed">Aktiviere dein Atelier, um eigene Werke hochzuladen und dein Archiv aufzubauen.</p>
+                        <a href="/artist-verification" class="inline-block w-full text-center py-3 bg-sTerra text-sWhite rounded-full text-xs font-bold hover:bg-sGreen transition-all shadow-lg shadow-sTerra/20">Künstler-Account erstellen</a>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="md:col-span-2">
+            {% if user.role == 'fan' %}
+                <div class="bg-sGreen/5 p-12 rounded-[40px] border border-sGreen/5 text-center">
+                    <h2 class="text-2xl font-serif italic text-sGreen mb-4">Deine Favoriten</h2>
+                    <p class="text-sm text-sBrown/60 max-w-xs mx-auto">Geh auf Entdeckungstour!</p>
+                </div>
+
+            {% elif user.role == 'pending_artist' %}
+                <div class="bg-sTerra/5 p-12 rounded-[40px] border border-sTerra/10 text-center">
+                    <h2 class="text-2xl font-serif italic text-sTerra mb-4">Prüfung läuft...</h2>
+                    <p class="text-sm text-sBrown/60 max-w-xs mx-auto">Wir verifizieren dein Atelier.</p>
+                </div>
+
+            {% else %}
+                <div class="grid grid-cols-2 gap-4 mb-8">
+                    <div class="bg-white p-6 rounded-3xl border border-sBrown/5">
+                        <span class="block text-3xl font-serif text-sGreen italic">{{ active_goals }}</span>
+                        <span class="text-[10px] uppercase font-bold text-sBrown/30">Aktive Song-Ziele</span>
+                    </div>
+                    <div class="bg-white p-6 rounded-3xl border border-sBrown/5 text-sTerra">
+                        <span class="block text-3xl font-serif italic">Neu</span>
+                        <span class="text-[10px] uppercase font-bold opacity-50">Status: Aktiv</span>
+                    </div>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="flex justify-between items-end mb-4">
+                        <h2 class="text-xl font-serif italic text-sGreen">Deine Werke im Archiv</h2>
+                        <a href="/create-song-goal" class="text-[10px] font-bold uppercase tracking-widest text-sTerra hover:underline">+ Ziel hinzufügen</a>
+                    </div>
+
+                    {% if songs %}
+                        {% for song in songs %}
+                        <a href="/song/{{ song.id }}" class="block group">
+                            <div class="bg-white p-4 rounded-[32px] border border-sBrown/5 flex items-center gap-6 shadow-sm group-hover:shadow-md group-hover:border-sTerra/20 transition-all duration-500">
+                                <div class="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-sGreen/10">
+                                    <img src="/{{ song.cover_path }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Cover">
+                                </div>
+                                
+                                <div class="flex-grow">
+                                    <div class="flex justify-between items-start">
+                                        <div>
+                                            <h3 class="font-bold text-sm mb-1 text-sGreen group-hover:text-sTerra transition-colors">{{ song.title }}</h3>
+                                            <p class="text-[10px] text-sBrown/40 uppercase tracking-widest mb-3">{{ song.artist }}</p>
+                                        </div>
+                                        {% if song.current_streams >= song.goal_streams %}
+                                            <span class="text-[8px] bg-sTerra/10 text-sTerra px-2 py-1 rounded-full font-bold uppercase tracking-tighter">Entsiegelt</span>
+                                        {% endif %}
+                                    </div>
+                                    
+                                    <div class="w-full h-1.5 bg-sGreen/5 rounded-full overflow-hidden">
+                                        {% set progress = (song.current_streams / song.goal_streams * 100) if song.goal_streams > 0 else 0 %}
+                                        <div class="h-full bg-sTerra transition-all duration-1000" style="width: {{ progress if progress <= 100 else 100 }}%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-3 pr-2">
+                                    <button onclick="event.preventDefault(); window.location.href='/edit-song/{{ song.id }}';" 
+                                            class="p-2.5 rounded-full bg-sWhite border border-sBrown/10 text-sBrown/40 hover:text-sTerra hover:border-sTerra/30 hover:shadow-sm transition-all opacity-0 group-hover:opacity-100">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </button>
+
+                                    <div class="opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <svg class="w-4 h-4 text-sTerra" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        {% endfor %}
+                    {% else %}
+                        <div class="bg-sGreen text-sWhite p-12 rounded-[40px] text-center">
+                            <p class="text-sm text-sWhite/60 mb-8 italic">Noch keine Werke versiegelt.</p>
+                            <a href="/create-song-goal" class="inline-block px-8 py-4 bg-sWhite text-sGreen rounded-full font-bold hover:bg-sTerra hover:text-sWhite transition-all">Ersten Song anlegen</a>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>
