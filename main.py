@@ -447,5 +447,11 @@ async def make_me_artist(request: Request, db: Session = Depends(get_db)):
     return "Fehler: Du bist nicht eingeloggt."
 
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="127.0.0.1", port=8000)
+import os
+import uvicorn
+    
+    if __name__ == "__main__":
+        # Render gibt uns den Port über eine Umgebungsvariable vor
+        port = int(os.environ.get("PORT", 8000))
+        # Wir binden die App an 0.0.0.0, damit sie von außen erreichbar ist
+        uvicorn.run("main:app", host="0.0.0.0", port=port)
