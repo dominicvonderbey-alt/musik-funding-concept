@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Profil gestalten // Settings</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { sWhite: '#FAF9F6', sGreen: '#243D32', sBrown: '#3E2723', sTerra: '#C16E53' },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Instrument Serif', 'serif'] },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-sWhite text-sBrown min-h-screen">
+
+    <nav class="max-w-5xl mx-auto px-6 py-8 flex justify-between items-center">
+        <a href="/" class="text-[10px] font-bold uppercase tracking-[0.3em] text-sBrown/50 hover:text-sGreen transition-all">← Zurück</a>
+        <span class="text-[10px] font-bold uppercase tracking-[0.3em] text-sTerra">Account Einstellungen</span>
+    </nav>
+
+    <main class="max-w-2xl mx-auto py-12 px-6">
+        <header class="mb-12">
+            <h1 class="text-5xl font-serif italic text-sGreen tracking-tighter">Profil gestalten</h1>
+            <p class="text-sBrown/50 text-sm mt-2">Präsentiere dich so, wie deine Musik klingt.</p>
+        </header>
+        
+        <form action="/update-settings" method="POST" enctype="multipart/form-data" class="space-y-12">
+            
+            <div class="space-y-6">
+                <h2 class="text-[10px] font-bold uppercase tracking-widest text-sTerra border-b border-sTerra/10 pb-2">Visuals</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-3">
+                        <label class="block text-xs font-bold text-sGreen">Profilbild (Quadratisch)</label>
+                        <div class="relative group">
+                            <div class="w-32 h-32 rounded-[2rem] bg-sGreen/5 border-2 border-dashed border-sGreen/20 flex items-center justify-center overflow-hidden group-hover:border-sTerra transition-all">
+                                {% if user.profile_pic %}
+                                    <img src="/{{ user.profile_pic }}" class="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity">
+                                {% endif %}
+                                <div class="absolute inset-0 flex items-center justify-center cursor-pointer">
+                                    <span class="text-[10px] font-bold uppercase tracking-tighter text-sGreen group-hover:text-sTerra">Upload</span>
+                                </div>
+                                <input type="file" name="profile_pic" class="absolute inset-0 opacity-0 cursor-pointer">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <label class="block text-xs font-bold text-sGreen">Banner Bild</label>
+                        <div class="relative h-32 rounded-[2rem] bg-sGreen/5 border-2 border-dashed border-sGreen/20 flex items-center justify-center overflow-hidden group-hover:border-sTerra transition-all">
+                            {% if user.banner_pic %}
+                                <img src="/{{ user.banner_pic }}" class="w-full h-full object-cover opacity-60 group-hover:opacity-40 transition-opacity">
+                            {% endif %}
+                            <div class="absolute inset-0 flex items-center justify-center cursor-pointer">
+                                <span class="text-[10px] font-bold uppercase tracking-tighter text-sGreen group-hover:text-sTerra">Upload Banner</span>
+                            </div>
+                            <input type="file" name="banner_pic" class="absolute inset-0 opacity-0 cursor-pointer">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h2 class="text-[10px] font-bold uppercase tracking-widest text-sTerra border-b border-sTerra/10 pb-2">Über dich</h2>
+                <div>
+                    <textarea name="bio" rows="5" 
+                        placeholder="Erzähl deine Geschichte..."
+                        class="w-full bg-white border border-sGreen/10 rounded-[2rem] p-6 text-sm outline-none focus:ring-2 focus:ring-sTerra/20 focus:border-sTerra/30 transition-all shadow-sm">{{ user.bio or '' }}</textarea>
+                </div>
+            </div>
+
+            <div class="space-y-4">
+                <h2 class="text-[10px] font-bold uppercase tracking-widest text-sTerra border-b border-sTerra/10 pb-2">Social Connect</h2>
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="relative">
+                        <span class="absolute left-6 top-1/2 -translate-y-1/2 text-xs font-bold text-sGreen/30">Spotify</span>
+                        <input type="text" name="spotify" value="{{ user.spotify_link or '' }}" 
+                            placeholder="https://open.spotify.com/artist/..." 
+                            class="w-full bg-white border border-sGreen/10 rounded-full pl-24 pr-6 py-4 text-sm outline-none focus:ring-2 focus:ring-sTerra/20">
+                    </div>
+                    <div class="relative">
+                        <span class="absolute left-6 top-1/2 -translate-y-1/2 text-xs font-bold text-sGreen/30">WhatsApp</span>
+                        <input type="text" name="whatsapp" value="{{ user.whatsapp_link or '' }}" 
+                            placeholder="Link zur Fan-Gruppe" 
+                            class="w-full bg-white border border-sGreen/10 rounded-full pl-24 pr-6 py-4 text-sm outline-none focus:ring-2 focus:ring-sTerra/20">
+                    </div>
+                </div>
+            </div>
+
+            <div class="pt-6">
+                <button type="submit" class="w-full bg-sGreen text-sWhite py-5 rounded-full font-bold uppercase tracking-[0.2em] text-xs hover:bg-sTerra shadow-xl hover:shadow-sTerra/20 transition-all duration-500">
+                    Änderungen speichern
+                </button>
+                <p class="text-center mt-6">
+                    <a href="/artist/{{ user.username }}" class="text-[10px] font-bold uppercase tracking-widest text-sBrown/30 hover:text-sTerra transition-all">Vorschau anzeigen</a>
+                </p>
+            </div>
+
+        </form>
+    </main>
+
+    <footer class="py-12 text-center text-sBrown/20 text-[10px] font-bold uppercase tracking-[0.3em]">
+        Project I Was Here // 2026
+    </footer>
+
+</body>
+</html>

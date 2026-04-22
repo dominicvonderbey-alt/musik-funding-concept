@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ artist.username }} // Profil</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: { sWhite: '#FAF9F6', sGreen: '#243D32', sBrown: '#3E2723', sTerra: '#C16E53' },
+                    fontFamily: { sans: ['Inter', 'sans-serif'], serif: ['Instrument Serif', 'serif'] },
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-sWhite text-sBrown min-h-screen">
+
+    <div class="w-full h-64 md:h-80 relative overflow-hidden">
+        <img src="/{{ artist.banner_pic or 'static/default_banner.jpg' }}" class="w-full h-full object-cover" alt="Banner">
+        <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
+        
+        <a href="/" class="absolute top-8 left-8 text-[10px] font-bold uppercase tracking-[0.3em] text-white/70 hover:text-white transition-all z-20">
+            ← Zurück zum Archiv
+        </a>
+    </div>
+
+    <div class="max-w-5xl mx-auto px-6 -mt-20 relative z-10">
+        <div class="flex flex-col md:flex-row items-end gap-6 mb-12">
+            <img src="/{{ artist.profile_pic or 'static/default_avatar.png' }}" 
+                 class="w-40 h-40 rounded-[2.5rem] border-8 border-sWhite object-cover shadow-2xl bg-sWhite">
+            
+            <div class="flex-grow pb-4 text-sWhite md:text-sBrown">
+                <h1 class="text-6xl font-serif italic tracking-tighter md:text-sBrown">{{ artist.username }}</h1>
+                <p class="text-sTerra font-bold uppercase tracking-[0.3em] text-xs">Verifizierter Künstler</p>
+            </div>
+
+            <div class="pb-4">
+                {% if user and user.id != artist.id %}
+                    <form action="/like-artist/{{ artist.id }}" method="POST">
+                        <button type="submit" class="px-8 py-3 rounded-full font-bold text-xs uppercase tracking-widest transition-all shadow-lg
+                            {{ 'bg-sTerra text-white hover:bg-sTerra/90' if is_following else 'bg-white/10 backdrop-blur-md text-white border border-white/20 hover:bg-white/20' }}">
+                            {{ 'Gefolgt' if is_following else 'Künstler Liken' }}
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-12 pb-24">
+            
+            <div class="md:col-span-2">
+                <h2 class="font-serif italic text-3xl text-sGreen mb-4">Über den Künstler</h2>
+                <p class="text-sBrown/70 leading-relaxed text-lg mb-16">
+                    {{ artist.bio or 'Keine Biografie verfügbar.' }}
+                </p>
+                
+                <h2 class="font-serif italic text-3xl text-sGreen mb-8">Aktuelle Ziele</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    {% for song in songs %}
+                    <a href="/song/{{ song.id }}" class="group bg-white p-4 rounded-[2rem] border border-sBrown/5 shadow-sm hover:shadow-xl transition-all">
+                        <div class="aspect-square rounded-2xl overflow-hidden mb-4">
+                            <img src="/{{ song.cover_path }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                        </div>
+                        <h4 class="font-serif italic text-xl text-sGreen mb-1">{{ song.title }}</h4>
+                        <div class="flex justify-between items-center text-[9px] font-bold uppercase tracking-widest text-sBrown/40">
+                            <span>{{ song.current_streams }} / {{ song.goal_streams }}</span>
+                            <span class="text-sTerra">Details →</span>
+                        </div>
+                        <div class="w-full h-1 bg-sGreen/5 rounded-full mt-3 overflow-hidden">
+                            <div class="h-full bg-sTerra" style="width: {{ (song.current_streams / song.goal_streams * 100)|round if song.goal_streams > 0 else 0 }}%"></div>
+                        </div>
+                    </a>
+                    {% else %}
+                    <p class="text-sBrown/40 italic text-sm">Aktuell sind keine Songs online.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="space-y-6">
+                <div class="bg-sGreen/[0.03] p-8 rounded-[3rem] border border-sGreen/5 h-fit">
+                    <h3 class="text-[10px] font-bold uppercase tracking-widest text-sTerra mb-6">Verbindungen</h3>
+                    <div class="space-y-4">
+                        {% if artist.spotify_link %}
+                            <a href="{{ artist.spotify_link }}" target="_blank" class="flex items-center justify-between p-4 bg-white rounded-2xl hover:shadow-md transition-all group">
+                                <span class="text-xs font-bold uppercase tracking-wider text-sGreen">Spotify Profil</span>
+                                <svg class="w-4 h-4 text-[#1DB954]" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.373 0 0 5.373 0 12s5.373 12 12 12 12-5.373 12-12S18.627 0 12 0zm5.5 17.3c-.2.3-.5.4-.8.2-2.5-1.5-5.6-1.9-9.3-1-.3.1-.6-.1-.7-.4s.1-.6.4-.7c4.1-1 7.6-.5 10.4 1.2.2.1.3.4.1.7zm1.5-3.3c-.3.4-.8.5-1.2.2-2.8-1.7-7.1-2.2-10.5-1.2-.4.1-.9-.1-1-.6s.1-.9.6-1c3.8-1.2 8.6-.6 11.8 1.4.5.3.6.8.3 1.2zm.1-3.4C15.5 8.3 9.4 8.1 5.8 9.2c-.5.2-1.1-.1-1.3-.6-.1-.6.1-1.1.7-1.3 4.2-1.3 10.9-1.1 15 1.4.5.3.6.9.3 1.4s-.9.6-1.4.3z"/></svg>
+                            </a>
+                        {% endif %}
+                        
+                        {% if artist.whatsapp_link %}
+                            <a href="{{ artist.whatsapp_link }}" target="_blank" class="flex items-center justify-between p-4 bg-[#25D366]/10 text-[#075E54] rounded-2xl hover:bg-[#25D366]/20 transition-all">
+                                <span class="text-xs font-bold uppercase tracking-wider">WhatsApp Gruppe</span>
+                                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
+                            </a>
+                        {% endif %}
+
+                        {% if not artist.spotify_link and not artist.whatsapp_link %}
+                            <p class="text-[10px] text-sBrown/30 italic">Keine sozialen Links hinterlegt.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="p-8 rounded-[3rem] border border-sBrown/10 bg-white">
+                    <p class="text-[10px] font-bold uppercase tracking-widest text-sBrown/40 mb-1">Status</p>
+                    <p class="text-sm font-serif italic text-sGreen">Mitglied seit {{ artist.created_at.strftime('%Y') if artist.created_at else '2026' }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
