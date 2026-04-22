@@ -96,7 +96,7 @@
 
     <div class="hidden md:flex flex-1 justify-center max-w-xl">
         <div class="relative w-full max-w-sm group">
-            <input type="text" id="navSearch" placeholder="Nach Werk suchen..." 
+            <input type="text" id="navSearch" placeholder="Nach Werk oder Künstler suchen..." 
                 class="w-full bg-white/50 border-none rounded-full py-2.5 px-10 text-[11px] font-medium outline-none focus:ring-1 focus:ring-sTerra/30 transition-all placeholder:text-sBrown/30 backdrop-blur-sm">
             <svg class="w-3.5 h-3.5 absolute left-4 top-1/2 -translate-y-1/2 text-sBrown/30" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
@@ -313,15 +313,24 @@
                     const songs = await response.json();
 
                     if (songs.length > 0) {
-                        navResults.innerHTML = songs.map(song => `
-                            <a href="/song/${song.id}" class="flex items-center gap-3 p-3 hover:bg-sGreen/5 transition-all border-b border-sBrown/5 last:border-none">
-                                <img src="/${song.cover_path}" class="w-10 h-10 rounded-xl object-cover shadow-sm">
-                                <div class="overflow-hidden">
-                                    <div class="text-[11px] font-bold text-sGreen truncate">${song.title}</div>
-                                    <div class="text-[8px] uppercase tracking-widest text-sBrown/40 truncate">${song.artist}</div>
-                                </div>
-                            </a>
-                        `).join('');
+                        // Navigations-Suche Update
+                        navResults.innerHTML = songs.map(item => {
+                            // Check: Ist es ein Song oder ein Artist?
+                            const isArtist = item.type === 'artist';
+                            const link = isArtist ? `/artist/${item.title}` : `/song/${item.id}`;
+                            const subline = isArtist ? 'Künstler' : item.artist;
+                            const coverImg = item.cover || item.cover_path || 'static/default_avatar.png';
+                            
+                            return `
+                                <a href="${link}" class="flex items-center gap-3 p-3 hover:bg-sGreen/5 transition-all border-b border-sBrown/5 last:border-none">
+                                    <img src="/${coverImg}" class="w-10 h-10 ${isArtist ? 'rounded-full' : 'rounded-xl'} object-cover shadow-sm">
+                                    <div class="overflow-hidden">
+                                        <div class="text-[11px] font-bold text-sGreen truncate">${item.title}</div>
+                                        <div class="text-[8px] uppercase tracking-widest text-sBrown/40 truncate">${subline}</div>
+                                    </div>
+                                </a>
+                            `;
+                        }).join('');
                         navResults.classList.remove('hidden');
                     } else {
                         navResults.innerHTML = '<div class="p-4 text-[10px] text-center text-sBrown/40 uppercase tracking-widest">Nichts gefunden</div>';
