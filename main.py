@@ -20,19 +20,42 @@ song_collaborators = Table(
     Column('user_id', Integer, ForeignKey('users.id'))
 )
 
+user_follows = Table(
+    'user_follows', Base.metadata,
+    Column('fan_id', Integer, ForeignKey('users.id')),
+    Column('artist_id', Integer, ForeignKey('users.id'))
+)
+
 # Tabellen-Klassen
 class User(Base):
     __tablename__ = "users"
     id = Column(Integer, primary_key=True, index=True)
-    username = Column(String)
-    email = Column(String, unique=True, index=True)
+    username = Column(String, unique=True)
+    email = Column(String, unique=True)
     password = Column(String)
-    role = Column(String, default="fan") # "fan", "pending_artist", "artist"
-    is_verified = Column(Integer, default=0)
-    verification_token = Column(String, unique=True)
+    role = Column(String, default="fan") # fan, artist
     
-    # Beziehung zu Songs (als Inhaber)
+    # --- Profil-Personalisierung ---
+    bio = Column(String, default="Noch keine Beschreibung vorhanden.")
+    profile_pic = Column(String, nullable=True)
+    banner_pic = Column(String, nullable=True)
+    accent_color = Column(String, default="#243D32") # Der Artist bestimmt seine Farbe
+    
     owned_songs = relationship("Song", back_populates="owner")
+    # --- Socials ---
+    spotify_link = Column(String, nullable=True)
+    instagram_link = Column(String, nullable=True)
+    whatsapp_link = Column(String, nullable=True)
+
+    # Relationships
+    # Gefolgte Künstler eines Fans
+    following = relationship(
+        "User", 
+        secondary=user_follows,
+        primaryjoin=(id == user_follows.c.fan_id),
+        secondaryjoin=(id == user_follows.c.artist_id),
+        backref="followers"
+    )
 
 class Song(Base):
     __tablename__ = "songs"
@@ -327,6 +350,105 @@ async def invite_artist(song_id: int, artist_name: str = Form(...), db: Session 
         db.commit()
     return RedirectResponse(url=f"/edit-song/{song_id}", status_code=303)
 
+@app.get("/artist/{username}")
+async def artist_profile(username: str, request: Request, db: Session = Depends(get_db)):
+    artist = db.query(User).filter(User.username == username, User.role == "artist").first()
+    if not artist:
+        return "Künstler nicht gefunden", 404
+    
+    user = await get_current_user(request, db)
+    # Alle Songs dieses Künstlers (Inhaber oder Collaborator)
+    songs = db.query(Song).filter(or_(Song.user_id == artist.id, Song.collaborators.any(id=artist.id))).all()
+    
+    # Prüfen ob der eingeloggte User diesen Artist bereits liked
+    is_following = user in artist.followers if user else False
+
+    return templates.TemplateResponse(
+    request=request, 
+    name="artist_profile.html", 
+    context={
+        "artist": artist, 
+        "user": user, 
+        "songs": songs, 
+        "is_following": is_following
+    }
+)
+
+# Artist Liken/Folgen
+@app.post("/like-artist/{artist_id}")
+async def like_artist(artist_id: int, request: Request, db: Session = Depends(get_db)):
+    user = await get_current_user(request, db)
+    if not user: return RedirectResponse(url="/login", status_code=303)
+    
+    artist = db.query(User).filter(User.id == artist_id).first()
+    if artist and user not in artist.followers:
+        artist.followers.append(user)
+        db.commit()
+    return RedirectResponse(url=f"/artist/{artist.username}", status_code=303)
+
+# Suche erweitern (Songs UND Artists)
+@app.get("/api/search")
+async def search(q: str, db: Session = Depends(get_db)):
+    songs = db.query(Song).filter(Song.title.ilike(f"%{q}%")).limit(5).all()
+    artists = db.query(User).filter(User.username.ilike(f"%{q}%"), User.role == "artist").limit(5).all()
+    
+    results = []
+    for s in songs:
+        results.append({"type": "song", "id": s.id, "title": s.title, "artist": s.artist, "cover": s.cover_path})
+    for a in artists:
+        results.append({"type": "artist", "id": a.id, "title": a.username, "artist": "Künstler", "cover": a.profile_pic or "static/default_avatar.png"})
+    return results
+
+@app.get("/settings")
+async def settings_page(request: Request, db: Session = Depends(get_db)):
+    user = await get_current_user(request, db)
+    if not user: return RedirectResponse(url="/login", status_code=303)
+    return templates.TemplateResponse(
+    request=request, 
+    name="settings.html", 
+    context={"user": user}
+)
+
+@app.post("/update-settings")
+async def update_settings(
+    request: Request,
+    bio: str = Form(None),
+    spotify: str = Form(None),
+    whatsapp: str = Form(None),
+    instagram: str = Form(None),
+    accent_color: str = Form("#243D32"),
+    profile_pic: UploadFile = File(None),
+    banner_pic: UploadFile = File(None),
+    db: Session = Depends(get_db)
+):
+    user = await get_current_user(request, db)
+    if not user: return RedirectResponse(url="/login", status_code=303)
+
+    # Texte & Farben speichern
+    user.bio = bio
+    user.spotify_link = spotify
+    user.whatsapp_link = whatsapp
+    user.instagram_link = instagram
+    user.accent_color = accent_color
+
+    # Bilder verarbeiten
+    os.makedirs("static/uploads/profiles", exist_ok=True)
+    
+    if profile_pic and profile_pic.filename:
+        path = f"static/uploads/profiles/p_{user.id}_{profile_pic.filename}"
+        with open(path, "wb") as buffer:
+            shutil.copyfileobj(profile_pic.file, buffer)
+        user.profile_pic = path
+
+    if banner_pic and banner_pic.filename:
+        path = f"static/uploads/profiles/b_{user.id}_{banner_pic.filename}"
+        with open(path, "wb") as buffer:
+            shutil.copyfileobj(banner_pic.file, buffer)
+        user.banner_pic = path
+
+    db.commit()
+    return RedirectResponse(url=f"/artist/{user.username}", status_code=303)
+
 #fake
 @app.get("/make-me-artist")
 async def make_me_artist(request: Request, db: Session = Depends(get_db)):
@@ -447,11 +569,9 @@ async def make_me_artist(request: Request, db: Session = Depends(get_db)):
     return "Fehler: Du bist nicht eingeloggt."
 
 if __name__ == "__main__":
-import os
-import uvicorn
-    
-    if __name__ == "__main__":
-        # Render gibt uns den Port über eine Umgebungsvariable vor
-        port = int(os.environ.get("PORT", 8000))
-        # Wir binden die App an 0.0.0.0, damit sie von außen erreichbar ist
-        uvicorn.run("main:app", host="0.0.0.0", port=port)
+    import uvicorn
+    import os
+    # Render gibt uns den Port über die Umgebungsvariable 'PORT'
+    port = int(os.environ.get("PORT", 8000))
+    # Wir binden an 0.0.0.0, um Anfragen aus dem Internet zu erlauben
+    uvicorn.run(app, host="0.0.0.0", port=port)
