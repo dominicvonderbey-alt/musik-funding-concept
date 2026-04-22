@@ -37,7 +37,15 @@
                 <img src="/{{ song.cover_path }}" class="w-full h-full object-cover" alt="Cover">
             </div>
             <h1 class="text-4xl font-serif italic text-sGreen mb-2">{{ song.title }}</h1>
-            <p class="text-sTerra font-bold uppercase tracking-widest text-xs mb-6">{{ song.artist }}</p>
+            
+            <a href="/artist/{{ song.owner.username }}" class="inline-flex items-center gap-2 group mb-8">
+                <span class="text-sTerra font-serif italic text-2xl group-hover:underline underline-offset-4 decoration-1">
+                    {{ song.artist }}
+                </span>
+                <svg class="w-4 h-4 text-sTerra opacity-0 group-hover:opacity-100 transition-all" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path d="M17 8l4 4m0 0l-4 4m4-4H3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+            </a>
 
             <a href="{{ song.spotify_url }}" target="_blank" 
             class="inline-flex items-center gap-3 px-6 py-3 bg-[#1DB954] text-white rounded-full hover:scale-105 transition-all shadow-lg shadow-green-900/20">
