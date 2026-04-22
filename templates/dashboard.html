@@ -42,7 +42,7 @@
                     {% if user.role == 'fan' %}
                     <div class="pt-6 border-t border-sBrown/5">
                         <h3 class="text-sm font-bold mb-2">Du bist Schöpfer?</h3>
-                        <p class="text-xs text-sBrown/50 mb-4 font-light leading-relaxed">Aktiviere dein Atelier, um eigene Werke hochzuladen und dein Archiv aufzubauen.</p>
+                        <p class="text-xs text-sBrown/50 mb-4 font-light leading-relaxed">Aktiviere dein Atelier, um eigene Werke hochzuladen.</p>
                         <a href="/artist-verification" class="inline-block w-full text-center py-3 bg-sTerra text-sWhite rounded-full text-xs font-bold hover:bg-sGreen transition-all shadow-lg shadow-sTerra/20">Künstler-Account erstellen</a>
                     </div>
                     {% endif %}
@@ -51,10 +51,33 @@
         </div>
 
         <div class="md:col-span-2">
+            
             {% if user.role == 'fan' %}
-                <div class="bg-sGreen/5 p-12 rounded-[40px] border border-sGreen/5 text-center">
-                    <h2 class="text-2xl font-serif italic text-sGreen mb-4">Deine Favoriten</h2>
-                    <p class="text-sm text-sBrown/60 max-w-xs mx-auto">Geh auf Entdeckungstour!</p>
+                <div class="space-y-8">
+                    <h2 class="text-2xl font-serif italic text-sGreen">Deine Künstler-Sammlung</h2>
+                    
+                    {% if user.following %}
+                        <div class="grid grid-cols-2 sm:grid-cols-3 gap-6">
+                            {% for artist in user.following %}
+                            <a href="/artist/{{ artist.username }}" class="group">
+                                <div class="bg-white p-6 rounded-[40px] border border-sBrown/5 text-center shadow-sm hover:shadow-md hover:border-sTerra/20 transition-all duration-500">
+                                    <div class="w-20 h-20 mx-auto rounded-full overflow-hidden mb-4 bg-sGreen/5 border-2 border-sWhite shadow-inner">
+                                        <img src="/{{ artist.profile_pic or 'static/default_avatar.png' }}" 
+                                             class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                    </div>
+                                    <h3 class="font-bold text-sm text-sGreen group-hover:text-sTerra transition-colors truncate">{{ artist.username }}</h3>
+                                    <p class="text-[9px] text-sBrown/30 uppercase tracking-[0.2em] mt-1">Künstler</p>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="bg-sGreen/5 p-16 rounded-[40px] border border-sGreen/5 text-center">
+                            <h3 class="text-xl font-serif italic text-sGreen mb-2">Noch ist es hier still.</h3>
+                            <p class="text-sm text-sBrown/50 mb-8">Folge Künstlern, um ihre Reise hier zu verfolgen.</p>
+                            <a href="/" class="inline-block px-8 py-3 bg-sGreen text-sWhite rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-sTerra transition-all">Künstler entdecken</a>
+                        </div>
+                    {% endif %}
                 </div>
 
             {% elif user.role == 'pending_artist' %}
@@ -69,10 +92,10 @@
                         <span class="block text-3xl font-serif text-sGreen italic">{{ active_goals }}</span>
                         <span class="text-[10px] uppercase font-bold text-sBrown/30">Aktive Song-Ziele</span>
                     </div>
-                    <div class="bg-white p-6 rounded-3xl border border-sBrown/5 text-sTerra">
-                        <span class="block text-3xl font-serif italic">Neu</span>
-                        <span class="text-[10px] uppercase font-bold opacity-50">Status: Aktiv</span>
-                    </div>
+                    <a href="/settings" class="bg-white p-6 rounded-3xl border border-sBrown/5 text-sTerra hover:bg-sTerra/5 transition-all">
+                        <span class="block text-3xl font-serif italic">Edit</span>
+                        <span class="text-[10px] uppercase font-bold opacity-50">Profil gestalten</span>
+                    </a>
                 </div>
 
                 <div class="space-y-6">
@@ -83,50 +106,20 @@
 
                     {% if songs %}
                         {% for song in songs %}
-                        <a href="/song/{{ song.id }}" class="block group">
-                            <div class="bg-white p-4 rounded-[32px] border border-sBrown/5 flex items-center gap-6 shadow-sm group-hover:shadow-md group-hover:border-sTerra/20 transition-all duration-500">
-                                <div class="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 bg-sGreen/10">
-                                    <img src="/{{ song.cover_path }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="Cover">
-                                </div>
-                                
+                        <a href="/song/{{ song.id }}" class="block group mb-4">
+                            <div class="bg-white p-4 rounded-[32px] border border-sBrown/5 flex items-center gap-6 shadow-sm group-hover:shadow-md transition-all">
+                                <img src="/{{ song.cover_path }}" class="w-20 h-20 rounded-2xl object-cover">
                                 <div class="flex-grow">
-                                    <div class="flex justify-between items-start">
-                                        <div>
-                                            <h3 class="font-bold text-sm mb-1 text-sGreen group-hover:text-sTerra transition-colors">{{ song.title }}</h3>
-                                            <p class="text-[10px] text-sBrown/40 uppercase tracking-widest mb-3">{{ song.artist }}</p>
-                                        </div>
-                                        {% if song.current_streams >= song.goal_streams %}
-                                            <span class="text-[8px] bg-sTerra/10 text-sTerra px-2 py-1 rounded-full font-bold uppercase tracking-tighter">Entsiegelt</span>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div class="w-full h-1.5 bg-sGreen/5 rounded-full overflow-hidden">
-                                        {% set progress = (song.current_streams / song.goal_streams * 100) if song.goal_streams > 0 else 0 %}
-                                        <div class="h-full bg-sTerra transition-all duration-1000" style="width: {{ progress if progress <= 100 else 100 }}%"></div>
-                                    </div>
-                                </div>
-
-                                <div class="flex items-center gap-3 pr-2">
-                                    <button onclick="event.preventDefault(); window.location.href='/edit-song/{{ song.id }}';" 
-                                            class="p-2.5 rounded-full bg-sWhite border border-sBrown/10 text-sBrown/40 hover:text-sTerra hover:border-sTerra/30 hover:shadow-sm transition-all opacity-0 group-hover:opacity-100">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </button>
-
-                                    <div class="opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <svg class="w-4 h-4 text-sTerra" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path d="M9 5l7 7-7 7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                                        </svg>
-                                    </div>
+                                    <h3 class="font-bold text-sm text-sGreen">{{ song.title }}</h3>
+                                    <p class="text-[10px] text-sBrown/40 uppercase tracking-widest">{{ song.artist }}</p>
                                 </div>
                             </div>
                         </a>
                         {% endfor %}
                     {% else %}
                         <div class="bg-sGreen text-sWhite p-12 rounded-[40px] text-center">
-                            <p class="text-sm text-sWhite/60 mb-8 italic">Noch keine Werke versiegelt.</p>
-                            <a href="/create-song-goal" class="inline-block px-8 py-4 bg-sWhite text-sGreen rounded-full font-bold hover:bg-sTerra hover:text-sWhite transition-all">Ersten Song anlegen</a>
+                            <p class="text-sm mb-8 italic">Noch keine Werke versiegelt.</p>
+                            <a href="/create-song-goal" class="inline-block px-8 py-4 bg-sWhite text-sGreen rounded-full font-bold">Ersten Song anlegen</a>
                         </div>
                     {% endif %}
                 </div>
